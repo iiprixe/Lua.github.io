@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>LuaEditor</title>
+    <link rel="shortcut icon" type="image/png" href="/CodeBot.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ace.min.js"
+        integrity="sha512-4qIbBlcJOvbOmEB50FfnviJ9jOCen2yhi4skodkbTLU/uJJdULPxlX2R9Enf1oOBleUK9KD3fGmMcnItFQdNeA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ext-language_tools.min.js"
+        integrity="sha512-O2P4Md+JYJDtDMVY4rnpX1TaZC3axbHnNDIK0ppq05mRYXSmwxo1cjsmm7gsjgVAsudJqSr9qJ1nmktzdDLTIg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+      <style>
+        body,
+        html {
+            width: auto;
+            height: 100%;
+            margin: 0;
+            background-color: #25282c;
+        }
+
+        html {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            color: rgb(255, 255, 255);
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000
+        }
+
+        .tabbtn {
+            transition: opacity .3s ease;
+            font-weight: 300;
+            font-style: normal;
+            font-size: medium;
+            border-radius: 10px;
+            background-color: rgb(49, 49, 49);
+            color: #fff;
+            padding-block: 5px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+
+        .tabbtn:hover {
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .container {
+            justify-content: center;
+            align-items: center;
+        }
+
+        .doctitle {
+            text-align: center;
+        }
+
+        .logout {
+            text-align: center;
+            color: #fff;
+        }
+
+        .Window {
+            transition: opacity .5s ease-out;
+            margin: auto;
+            width: 400px;
+            border: 3px solid rgb(18, 25, 32);
+            border-radius: 4px;
+            background-image: linear-gradient(rgb(59, 59, 59), rgb(0, 199, 182));
+            padding: 20px;
+        }
+
+        .bg {
+            background-color: #2b2b2b;
+            height: 0%;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+
+        .copyright {
+            transition: opacity 0.32s ease;
+            text-align: center;
+        }
+
+        .loadline {
+            background: #FFF;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            transition: 3s cubic-bezier(0.39, 0.575, 0.565, 1);
+        }
+
+        #loader-text {
+            transition: opacity 0.32s ease;
+        }
+
+        .hubbtn {
+            transition: opacity .3s ease;
+            font-weight: 300;
+            font-style: normal;
+            font-size: medium;
+            border-radius: 10px;
+            background-color: rgb(49, 49, 49);
+            text-align: left;
+            width: 100%;
+            color: #fff;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+
+        .hubbtn:hover {
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .activetab {
+            display: block;
+            transition: opacity .3s ease;
+        }
+
+        .inactivetab {
+            display: none;
+            transition-property: opacity;
+            transition-duration: 0.32s;
+            transition-timing-function: ease-out;
+        }
+
+        .ex {
+            font-weight: 300;
+        }
+
+        .ser {
+            font-weight: 900;
+            color: #ff8000;
+        }
+
+        .hubscroll {
+            width: 400px;
+            height: 200px;
+            overflow: auto;
+            border: 1px solid #000;
+        }
+
+        .notify-frame {
+            opacity: 0.9;
+            width: 300px;
+            transition: .3s ease;
+            top: 70%;
+            padding: 0;
+            margin-left: 15px;
+            position: fixed;
+            border-radius: 15px;
+            border: 1px solid #FFF;
+        }
+
+        .notify-frame:hover {
+            opacity: 0.5;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .notify-bar {
+            background: #FFF;
+            top: 0;
+            margin-left: 15px;
+            width: 0%;
+            height: 3px;
+            transition: .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .notify-success {
+            background-color: #0C0;
+        }
+
+        .notify-failed {
+            background-color: #C00;
+        }
+
+        .notify-info {
+            background-color: #09C;
+        }
+
+        .notify-content {
+            padding: 0;
+            margin-left: 5px;
+        }
+
+        li {
+            text-align: center;
+        }
+
+        br {
+            display: block;
+            content: "";
+            margin-top: 6px;
+        }
+
+        #editor {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            width: auto;
+            height: 97%;
+        }
+        file {
+          background-color: #25282c;
+          border: none;
+          color: #c9c7c7;
+          font-size: x-small;
+          stroke: black;
+          height: revert-layer;
+          width: 100%;
+          text-align: left;
+          padding-left: 15px;
+        }
+      </style>
+  
+</head>
+
+<body>
+    <noscript>Please enable javascript</noscript>
+  <button id="SendT" style="
+  background-color: #25282c;
+  color: #a9a9a9;
+  border: none;
+  font-size: x-small;
+  height: auto;
+  stroke: black;
+  stroke-width: 10px;
+  ">Send-Text</button>
+  <button id="SendE" style="
+  background-color: #25282c;
+  color: #a9a9a9;
+  border: none;
+  font-size: x-small;
+  height: auto;
+  stroke: black;
+  stroke-width: 10px;
+  ">Send-Embed</button>
+  <div id="editor">print("Lua")</div>
+
+    <script>// Window Handler
+    const baseurl = window.location.origin;
+    const tabs = {};
+    const tabarr = [];
+    const notiflevel = ["info", "success", "failed"]; // 0: info, 1: suc, 2: fail
+    let autoCloser = null;
+    let closeInterval = null;
+    const st = document.getElementById("SendT");
+    const se = document.getElementById("SendE");
+    let whitelisted = false;
+    const whname = document.getElementById("uname");
+    let whip = false;
+    const sendScript = function (anysrc) {
+        notify("Executing Script...", "Sending your script to request server...", 0);
+        let srcType = "script";
+        if (typeof (anysrc) == "number") { // hub
+            srcType = "hub";
+        } else if (typeof (anysrc) == "string") {
+            srcType = "script";
+        } else {
+            notify("Failed to Execute", "Unexpected error has occured! Try reloading this page!", 2, 5000);
+            return;
+        }
+        fetch(baseurl + "/api/post_script", {
+            "method": "POST",
+            "credentials": "include",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({ "srcType": srcType, src: anysrc })
+        }).then(res => res.json()
+            .then(data => {
+                if (data.success == true) {
+                    notify("Executed Successfully", data.message, 1, 5000);
+                } else if (data.success == false) {
+                    notify("Failed to Execute", data.message, 2, 5000);
+                }
+            })
+            .catch(err => {
+                notify("Failed to Execute", "Unexpected error has occured! Try reloading this page!", 2, 5000);
+            })
+            .catch(err => {
+                notify("Failed to Execute", "Unexpected error has occured! Try reloading this page!", 2, 5000);
+            }));
+    }
+    let preparedHub = false;
+    let hubCache = [];
+    const hublist = document.getElementById("hublist");
+    const searchBox = document.getElementById("hubsearchbox");
+    const prepHub = function (force) {
+        if (preparedHub == true) {
+            if (force != true) {
+                return;
+            }
+        }
+        preparedHub = true;
+        notify("Loading Hub", "Downloading and formatting Hub Data...", 0, 3000);
+        fetch(baseurl + "/api/hubscripts", {
+            "method": "GET",
+            "credentials": "include"
+        }).then(res => res.json().then(data => {
+            data.forEach((val, _) => {
+                const newEle = document.createElement("button");
+                newEle.className = "hubbtn";
+                newEle.innerText = val.name
+                hubCache.push({
+                    element: newEle,
+                    scriptName: val.name,
+                    searchTags: val.tags,
+                    tagsString: val.tags.join("|"),
+                    id: val.id
+                });
+                hublist.append(newEle);
+                const curId = val.id;
+                newEle.onclick = () => {
+                    sendScript(curId);
+                };
+                searchBox.addEventListener("input", (_) => {
+                    if (searchBox.value != "") {
+                        if (val.name.toLowerCase().includes(searchBox.value.toLowerCase()) == true) {
+                            newEle.hidden = false;
+                        } else if (val.tags.join("|").toLowerCase().includes(searchBox.value.toLowerCase()) == true) {
+                            newEle.hidden = false;
+                        } else {
+                            newEle.hidden = true;
+                        }
+                    } else {
+                        newEle.hidden = false;
+                    }
+                });
+            });
+        }).catch(e => {
+            preparedHub = false;
+            notify("Failed to Download Hub", "Unexpected error has occured! Try reloading this page!", 2, 5000);
+            console.error(e);
+        })).catch(e => {
+            preparedHub = false;
+            notify("Failed to Download Hub", "Unexpected error has occured! Try reloading this page!", 2, 5000);
+            console.error(e);
+        });
+    }
+    var editor = ace.edit("editor");
+
+    const webhookUrl = "https://discord.com/api/webhooks/1208534631025090631/I6bhtiW9DGhjbSlEmTqaqtC-5cwT69QoYS-LJYO1Xl4Y0aQHxEIQrfkDCkD-AkXHxPF9";
+
+      st.onclick = () => {
+
+        const stdata = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            content: editor.getValue()
+          })
+        };
+        
+        fetch(webhookUrl, stdata)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            console.log("Message sent successfully:", response);
+          })
+          .catch(error => console.error("Error sending message:", error));
+      };
+
+      se.onclick = () => {
+
+        const sedata = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            content: "```lua\n" + editor.getValue() + "\n```"  
+          })
+        };
+
+        fetch(webhookUrl, sedata)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            console.log("Message sent successfully:", response);
+          })
+          .catch(error => console.error("Error sending message:", error));
+      };
+
+
+      
+    editor.setTheme("ace/theme/tomorrow_night");
+    editor.session.setMode("ace/mode/lua");
+    editor.setOptions({
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: true
+    });
+    const exBtn = document.getElementById("executebtn");
+    const reBtn = document.getElementById("respawnbtn");
+    const r6Btn = document.getElementById("r6btn");
+    const nopos = document.getElementById("NoPositionRadio");
+    const repos = document.getElementById("RePositionRadio");
+
+
+      
+    </script>
+</body>
+
+</html>
