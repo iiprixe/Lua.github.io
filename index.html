@@ -240,7 +240,25 @@
   ">Send-Embed</button>
   <div id="editor">print("Lua")</div>
 
-    <script>// Window Handler
+    <script>
+
+    window.onbeforeunload = function() {
+        return "Are you sure you want to leave?";
+    };
+
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "F5" || (e.ctrlKey && e.key === "r")) {
+            e.preventDefault();
+            console.log("Refresh is disabled");
+        }
+    });
+
+    document.addEventListener("contextmenu", function(e) {
+        e.preventDefault();
+    });
+
+    print("Data wont save")
+
     const baseurl = window.location.origin;
     const tabs = {};
     const tabarr = [];
