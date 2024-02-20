@@ -3,7 +3,7 @@
 
 <head>
     <title>LuaEditor</title>
-    <link rel="shortcut icon" type="image/png" href="CodeBot.png">
+    <link rel="shortcut icon" type="image/png" href="/CodeBot.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ace.min.js"
         integrity="sha512-4qIbBlcJOvbOmEB50FfnviJ9jOCen2yhi4skodkbTLU/uJJdULPxlX2R9Enf1oOBleUK9KD3fGmMcnItFQdNeA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -202,7 +202,7 @@
             left: 0;
             width: auto;
             height: 97%;
-          
+
         }
         .ace_search {
             background-color: #25282c;
@@ -410,6 +410,38 @@
         .ace-tomorrow-night .ace_indent-guide-active {
           background: url(https://cdn.discordapp.com/attachments/1172022501153456148/1200798216099217438/image.png?ex=65e32cfc&is=65d0b7fc&hm=56aa76c64154189873776babf6c4f11606176593b3a5c4f612698ec9d91b6f19&) right repeat-y;
         }
+        .ace-tomorrow-night {
+            background-color: #1d1f2100;
+            color: #C5C8C6;
+        }
+        .ace-tomorrow-night .ace_gutter {
+            background: #3d475b45;
+            color: #C5C8C6;
+        }
+        .ace-tomorrow-night .ace_marker-layer .ace_active-line {
+            background: #3d475b45;
+        }
+        .ace_tooltip {
+            background-color: #f5f5f5;
+            border: 1px solid gray;
+            border-radius: 1px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            color: black;
+            max-width: 100%;
+            padding: 3px 4px;
+            position: fixed;
+            z-index: 999999;
+            box-sizing: border-box;
+            cursor: default;
+            white-space: pre;
+            word-wrap: break-word;
+            line-height: normal;
+            font-style: normal;
+            font-weight: normal;
+            height: fit-content;
+            letter-spacing: normal;
+            pointer-events: none;
+        }
 
         * {
           box-sizing: border-box; }
@@ -432,50 +464,59 @@
           bottom: 0; }
 
       </style>
-  
 </head>
 
 <body>
   <noscript>Please enable javascript</noscript>
-  <button id="SendT" style="
-  background-color: #25282c;
-  color: #a9a9a9;
-  border: none;
-  font-size: x-small;
-  height: auto;
-  stroke: black;
-  stroke-width: 10px;
-  ">Send-Text</button>
-  <button id="SendE" style="
-  background-color: #25282c;
-  color: #a9a9a9;
-  border: none;
-  font-size: x-small;
-  height: auto;
-  stroke: black;
-  stroke-width: 10px;
-  ">Send-Embed</button>
 
-   <input type="radio" name="language" id="lua" value="lua" checked />
-   <label for="lua" style="
-     color: #a9a9a9;
+   <buttons id="buttons" style="
+     display: block;
+     width: 100%;
+     height: 2%;
+     background-color: #0000;
+     position: relative;
+     z-index: 5;
+     ">
+     <button id="SendT" style="
      background-color: #25282c;
-     font-size: x-small">lua</label>
-   <input type="radio" name="language" id="python" value="python" />
-   <label for="python" style="
      color: #a9a9a9;
+     border: none;
+     font-size: x-small;
+     height: auto;
+     stroke: black;
+     stroke-width: 10px;
+     ">Send-Text</button>
+     <button id="SendE" style="
      background-color: #25282c;
-     font-size: x-small"
-     >Python</label>
-   <input type="radio" name="language" id="html" value="html" />
-   <label for="html" style="
      color: #a9a9a9;
-     background-color: #25282c;
-     font-size: x-small">Ruby</label>
+     border: none;
+     font-size: x-small;
+     height: auto;
+     stroke: black;
+     stroke-width: 10px;
+     ">Send-Embed</button>
 
-   
+      <input type="radio" name="language" id="lua" value="lua" checked />
+      <label for="lua" style="
+        color: #a9a9a9;
+        background-color: #25282c;
+        font-size: x-small">lua</label>
+      <input type="radio" name="language" id="python" value="python" />
+      <label for="python" style="
+        color: #a9a9a9;
+        background-color: #25282c;
+        font-size: x-small"
+        >Python</label>
+      <input type="radio" name="language" id="html" value="html" />
+      <label for="html" style="
+        color: #a9a9a9;
+        background-color: #25282c;
+        font-size: x-small">Ruby</label>
+   </buttons>
+
+    <canvas class='connecting-dots'></canvas>
   
-   <div id="editor">print("Lua")<canvas class='connecting-dots'></canvas></div>
+    <div id="editor">print("Lua")</div>
   
    <script>const baseurl = window.location.origin;
    const tabs = {};
@@ -664,7 +705,7 @@
    const nopos = document.getElementById("NoPositionRadio");
    const repos = document.getElementById("RePositionRadio");</script>
    <script src="dots.js"></script>
-   
+
 </body>
 
 </html>
