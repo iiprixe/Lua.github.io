@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>LuaEditor</title>
+    <link rel="shortcut icon" type="image/png" href="/CodeBot.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ace.min.js"
+        integrity="sha512-4qIbBlcJOvbOmEB50FfnviJ9jOCen2yhi4skodkbTLU/uJJdULPxlX2R9Enf1oOBleUK9KD3fGmMcnItFQdNeA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.31.2/ext-language_tools.min.js"
+        integrity="sha512-O2P4Md+JYJDtDMVY4rnpX1TaZC3axbHnNDIK0ppq05mRYXSmwxo1cjsmm7gsjgVAsudJqSr9qJ1nmktzdDLTIg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+      <style>
+        body,
+        html {
+            width: auto;
+            height: 100%;
+            margin: 0;
+            background-color: #25282c;
+        }
+
+        html {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            color: rgb(255, 255, 255);
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000
+        }
+
+        .tabbtn {
+            transition: opacity .3s ease;
+            font-weight: 300;
+            font-style: normal;
+            font-size: medium;
+            border-radius: 10px;
+            background-color: rgb(49, 49, 49);
+            color: #fff;
+            padding-block: 5px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+
+        .tabbtn:hover {
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .container {
+            justify-content: center;
+            align-items: center;
+        }
+
+        .doctitle {
+            text-align: center;
+        }
+
+        .logout {
+            text-align: center;
+            color: #fff;
+        }
+
+        .Window {
+            transition: opacity .5s ease-out;
+            margin: auto;
+            width: 400px;
+            border: 3px solid rgb(18, 25, 32);
+            border-radius: 4px;
+            background-image: linear-gradient(rgb(59, 59, 59), rgb(0, 199, 182));
+            padding: 20px;
+        }
+
+        .bg {
+            background-color: #2b2b2b;
+            height: 0%;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+
+        .copyright {
+            transition: opacity 0.32s ease;
+            text-align: center;
+        }
+
+        .loadline {
+            background: #FFF;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            transition: 3s cubic-bezier(0.39, 0.575, 0.565, 1);
+        }
+
+        #loader-text {
+            transition: opacity 0.32s ease;
+        }
+
+        .hubbtn {
+            transition: opacity .3s ease;
+            font-weight: 300;
+            font-style: normal;
+            font-size: medium;
+            border-radius: 10px;
+            background-color: rgb(49, 49, 49);
+            text-align: left;
+            width: 100%;
+            color: #fff;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        }
+
+        .hubbtn:hover {
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .activetab {
+            display: block;
+            transition: opacity .3s ease;
+        }
+
+        .inactivetab {
+            display: none;
+            transition-property: opacity;
+            transition-duration: 0.32s;
+            transition-timing-function: ease-out;
+        }
+
+        .ex {
+            font-weight: 300;
+        }
+
+        .ser {
+            font-weight: 900;
+            color: #ff8000;
+        }
+
+        .hubscroll {
+            width: 400px;
+            height: 200px;
+            overflow: auto;
+            border: 1px solid #000;
+        }
+
+        .notify-frame {
+            opacity: 0.9;
+            width: 300px;
+            transition: .3s ease;
+            top: 70%;
+            padding: 0;
+            margin-left: 15px;
+            position: fixed;
+            border-radius: 15px;
+            border: 1px solid #FFF;
+        }
+
+        .notify-frame:hover {
+            opacity: 0.5;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .notify-bar {
+            background: #FFF;
+            top: 0;
+            margin-left: 15px;
+            width: 0%;
+            height: 3px;
+            transition: .3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .notify-success {
+            background-color: #0C0;
+        }
+
+        .notify-failed {
+            background-color: #C00;
+        }
+
+        .notify-info {
+            background-color: #09C;
+        }
+
+        .notify-content {
+            padding: 0;
+            margin-left: 5px;
+        }
+
+        li {
+            text-align: center;
+        }
+
+        br {
+            display: block;
+            content: "";
+            margin-top: 6px;
+        }
+
+        #editor {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            width: auto;
+            height: 97%;
+          
+        }
+        .ace_search {
+            background-color: #25282c;
+            color: #a5a5a5;
+            border: 1px solid #3f444b;
+            border-top: 0 none;
+            overflow: hidden;
+            margin: 0;
+            padding: 4px 6px 0 4px;
+            position: absolute;
+            top: 0;
+            z-index: 99;
+            stroke: none;
+            white-space: normal;
+        }
+        .ace_search_field {
+            border-radius: 3px 0 0 3px;
+            background-color: #25282c;
+            color: #d7d7d7;
+            border: 1px solid #3f444b;
+            border-right: 0 none;
+            outline: 0;
+            padding: 0;
+            font-size: inherit;
+            margin: 0;
+            line-height: inherit;
+            padding: 0 6px;
+            min-width: 17em;
+            vertical-align: top;
+            min-height: 1.8em;
+            box-sizing: content-box;
+        }
+        .ace_searchbtn {
+            border: 1px solid #3f444b;
+            line-height: inherit;
+            display: inline-block;
+            padding: 0 6px;
+            background: #25282c;
+            border-right: 0 none;
+            /* border-left: 1px solid #dcdcdc; */
+            cursor: pointer;
+            margin: 0;
+            position: relative;
+            stroke: none;
+            color: #7a7b7b;
+        }
+        .ace_button {
+            margin-left: 2px;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -o-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            overflow: hidden;
+            opacity: 0.7;
+            border: 1px solid rgba(100,100,100,0.23);
+            padding: 1px;
+            box-sizing: border-box!important;
+            color: #d7d7d7;
+        }
+        .ace_button:hover {
+            background-color: #25282c;
+            opacity:1;
+        }
+        .ace_searchbtn:hover {
+            background-color: #25282c;
+        }
+        .ace_tooltip.ace_dark {
+            background-color: #25282c;
+            color: #fff;
+        }
+        .ace_dark.ace_editor.ace_autocomplete {
+            border: 1px #3f444b solid;
+            box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.51);
+            line-height: 1.4;
+            background: #25282c;
+            color: #c1c1c1;
+        }
+        .ace-tomorrow-night .ace_gutter {
+          background: #25282c;
+          color: #C5C8C6
+        }
+
+        .ace-tomorrow-night .ace_print-margin {
+          width: 1px;
+          background: #00000000
+        }
+
+        .ace-tomorrow-night {
+          background-color: #1d1f21;
+          color: #C5C8C6
+        }
+
+        .ace-tomorrow-night .ace_cursor {
+          color: #ddddddc9
+        }
+
+        .ace-tomorrow-night .ace_marker-layer .ace_selection {
+          background: #365584
+        }
+
+        .ace-tomorrow-night.ace_multiselect .ace_selection.ace_start {
+          box-shadow: 0 0 3px 0px #1d1f21;
+        }
+
+        .ace-tomorrow-night .ace_marker-layer .ace_step {
+          background: rgb(102 82 0)
+        }
+
+        .ace-tomorrow-night .ace_marker-layer .ace_bracket {
+          margin: -1px 0 0 -1px;
+          border: 1px solid #4b4e55
+        }
+
+        .ace-tomorrow-night .ace_marker-layer .ace_active-line {
+          background: #282a2e
+        }
+
+        .ace-tomorrow-night .ace_gutter-active-line {
+          background-color: #282a2e
+        }
+
+        .ace-tomorrow-night .ace_marker-layer .ace_selected-word {
+          border: 1px solid #373B41
+        }
+
+        .ace-tomorrow-night .ace_invisible {
+          color: #4b4e55
+        }
+
+        .ace-tomorrow-night .ace_keyword,
+        .ace-tomorrow-night .ace_meta,
+        .ace-tomorrow-night .ace_storage,
+        .ace-tomorrow-night .ace_storage.ace_type,
+        .ace-tomorrow-night .ace_support.ace_type {
+          color: #b294bb;
+        }
+
+        .ace-tomorrow-night .ace_keyword.ace_operator {
+          color: #8ABEB7
+        }
+
+        .ace-tomorrow-night .ace_constant.ace_character,
+        .ace-tomorrow-night .ace_constant.ace_language,
+        .ace-tomorrow-night .ace_constant.ace_numeric,
+        .ace-tomorrow-night .ace_keyword.ace_other.ace_unit,
+        .ace-tomorrow-night .ace_support.ace_constant,
+        .ace-tomorrow-night .ace_variable.ace_parameter {
+          color: #DE935F
+        }
+
+        .ace-tomorrow-night .ace_constant.ace_other {
+          color: #CED1CF
+        }
+
+        .ace-tomorrow-night .ace_invalid {
+          color: #CED2CF;
+          background-color: #DF5F5F
+        }
+
+        .ace-tomorrow-night .ace_invalid.ace_deprecated {
+          color: #CED2CF;
+          background-color: #B798BF
+        }
+
+        .ace-tomorrow-night .ace_fold {
+          background-color: #81A2BE;
+          border-color: #C5C8C6
+        }
+
+        .ace-tomorrow-night .ace_entity.ace_name.ace_function,
+        .ace-tomorrow-night .ace_support.ace_function,
+        .ace-tomorrow-night .ace_variable {
+          color: #81A2BE
+        }
+
+        .ace-tomorrow-night .ace_support.ace_class,
+        .ace-tomorrow-night .ace_support.ace_type {
+          color: #F0C674
+        }
+
+        .ace-tomorrow-night .ace_heading,
+        .ace-tomorrow-night .ace_markup.ace_heading,
+        .ace-tomorrow-night .ace_string {
+          color: #B5BD68
+        }
+
+        .ace-tomorrow-night .ace_entity.ace_name.ace_tag,
+        .ace-tomorrow-night .ace_entity.ace_other.ace_attribute-name,
+        .ace-tomorrow-night .ace_meta.ace_tag,
+        .ace-tomorrow-night .ace_string.ace_regexp,
+        .ace-tomorrow-night .ace_variable {
+          color: #CC6666
+        }
+
+        .ace-tomorrow-night .ace_comment {
+          color: #969896
+        }
+
+        .ace-tomorrow-night .ace_indent-guide {
+          background: url(https://cdn.discordapp.com/attachments/1172022501153456148/1200798216099217438/image.png?ex=65e32cfc&is=65d0b7fc&hm=56aa76c64154189873776babf6c4f11606176593b3a5c4f612698ec9d91b6f19&) right repeat-y
+        }
+
+        .ace-tomorrow-night .ace_indent-guide-active {
+          background: url(https://cdn.discordapp.com/attachments/1172022501153456148/1200798216099217438/image.png?ex=65e32cfc&is=65d0b7fc&hm=56aa76c64154189873776babf6c4f11606176593b3a5c4f612698ec9d91b6f19&) right repeat-y;
+        }
+
+        * {
+          box-sizing: border-box; }
+
+        html, body {
+          font-size: 10px;
+          font-family: Roboto, Helvetica, Arial, sans-serif;
+          line-height: 150%; }
+
+        div {
+          height: 100%; }
+
+        canvas {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          right: 0;
+          left: 0;
+          bottom: 0; }
+
+      </style>
+  
+</head>
+
+<body>
+  <noscript>Please enable javascript</noscript>
+  <button id="SendT" style="
+  background-color: #25282c;
+  color: #a9a9a9;
+  border: none;
+  font-size: x-small;
+  height: auto;
+  stroke: black;
+  stroke-width: 10px;
+  ">Send-Text</button>
+  <button id="SendE" style="
+  background-color: #25282c;
+  color: #a9a9a9;
+  border: none;
+  font-size: x-small;
+  height: auto;
+  stroke: black;
+  stroke-width: 10px;
+  ">Send-Embed</button>
+
+   <input type="radio" name="language" id="lua" value="lua" checked />
+   <label for="lua" style="
+     color: #a9a9a9;
+     background-color: #25282c;
+     font-size: x-small">lua</label>
+   <input type="radio" name="language" id="python" value="python" />
+   <label for="python" style="
+     color: #a9a9a9;
+     background-color: #25282c;
+     font-size: x-small"
+     >Python</label>
+   <input type="radio" name="language" id="html" value="html" />
+   <label for="html" style="
+     color: #a9a9a9;
+     background-color: #25282c;
+     font-size: x-small">Ruby</label>
+
+   
+  
+   <div id="editor">print("Lua")<canvas class='connecting-dots'></canvas></div>
+  
+   <script>const baseurl = window.location.origin;
+   const tabs = {};
+   const tabarr = [];
+   const notiflevel = ["info", "success", "failed"]; // 0: info, 1: suc, 2: fail
+   let autoCloser = null;
+   let closeInterval = null;
+   const st = document.getElementById("SendT");
+   const se = document.getElementById("SendE");
+   let whitelisted = false;
+   const whname = document.getElementById("uname");
+   let whip = false;
+   const sendScript = function (anysrc) {
+       notify("Executing Script...", "Sending your script to request server...", 0);
+       let srcType = "script";
+       if (typeof (anysrc) == "number") { // hub
+           srcType = "hub";
+       } else if (typeof (anysrc) == "string") {
+           srcType = "script";
+       } else {
+           notify("Failed to Execute", "Unexpected error has occured! Try reloading this page!", 2, 5000);
+           return;
+       }
+       fetch(baseurl + "/api/post_script", {
+           "method": "POST",
+           "credentials": "include",
+           "headers": {
+               "Content-Type": "application/json"
+           },
+           "body": JSON.stringify({ "srcType": srcType, src: anysrc })
+       }).then(res => res.json()
+           .then(data => {
+               if (data.success == true) {
+                   notify("Executed Successfully", data.message, 1, 5000);
+               } else if (data.success == false) {
+                   notify("Failed to Execute", data.message, 2, 5000);
+               }
+           })
+           .catch(err => {
+               notify("Failed to Execute", "Unexpected error has occured! Try reloading this page!", 2, 5000);
+           })
+           .catch(err => {
+               notify("Failed to Execute", "Unexpected error has occured! Try reloading this page!", 2, 5000);
+           }));
+   }
+   let preparedHub = false;
+   let hubCache = [];
+   const hublist = document.getElementById("hublist");
+   const searchBox = document.getElementById("hubsearchbox");
+   const prepHub = function (force) {
+       if (preparedHub == true) {
+           if (force != true) {
+               return;
+           }
+       }
+       preparedHub = true;
+       notify("Loading Hub", "Downloading and formatting Hub Data...", 0, 3000);
+       fetch(baseurl + "/api/hubscripts", {
+           "method": "GET",
+           "credentials": "include"
+       }).then(res => res.json().then(data => {
+           data.forEach((val, _) => {
+               const newEle = document.createElement("button");
+               newEle.className = "hubbtn";
+               newEle.innerText = val.name
+               hubCache.push({
+                   element: newEle,
+                   scriptName: val.name,
+                   searchTags: val.tags,
+                   tagsString: val.tags.join("|"),
+                   id: val.id
+               });
+               hublist.append(newEle);
+               const curId = val.id;
+               newEle.onclick = () => {
+                   sendScript(curId);
+               };
+               searchBox.addEventListener("input", (_) => {
+                   if (searchBox.value != "") {
+                       if (val.name.toLowerCase().includes(searchBox.value.toLowerCase()) == true) {
+                           newEle.hidden = false;
+                       } else if (val.tags.join("|").toLowerCase().includes(searchBox.value.toLowerCase()) == true) {
+                           newEle.hidden = false;
+                       } else {
+                           newEle.hidden = true;
+                       }
+                   } else {
+                       newEle.hidden = false;
+                   }
+               });
+           });
+       }).catch(e => {
+           preparedHub = false;
+           notify("Failed to Download Hub", "Unexpected error has occured! Try reloading this page!", 2, 5000);
+           console.error(e);
+       })).catch(e => {
+           preparedHub = false;
+           notify("Failed to Download Hub", "Unexpected error has occured! Try reloading this page!", 2, 5000);
+           console.error(e);
+       });
+   }
+   var editor = ace.edit("editor");
+
+   const webhookUrl = "https://discord.com/api/webhooks/";
+
+     st.onclick = () => {
+
+       const stdata = {
+         method: "POST",
+         headers: {
+           "Content-Type": "application/json"
+         },
+         body: JSON.stringify({
+           content: editor.getValue()
+         })
+       };
+
+       fetch(webhookUrl, stdata)
+         .then(response => {
+           if (!response.ok) {
+             throw new Error("Network response was not ok");
+           }
+           console.log("Message sent successfully:", response);
+         })
+         .catch(error => console.error("Error sending message:", error));
+     };
+
+     se.onclick = () => {
+
+       const sedata = {
+         method: "POST",
+         headers: {
+           "Content-Type": "application/json"
+         },
+         body: JSON.stringify({
+           content: "```lua\n" + editor.getValue() + "\n```"  
+         })
+       };
+
+       fetch(webhookUrl, sedata)
+         .then(response => {
+           if (!response.ok) {
+             throw new Error("Network response was not ok");
+           }
+           console.log("Message sent successfully:", response);
+         })
+         .catch(error => console.error("Error sending message:", error));
+     };
+
+     editor.setTheme("ace/theme/tomorrow_night");
+     editor.session.setMode("ace/mode/lua");
+     editor.setOptions({
+         enableBasicAutocompletion: true,
+         enableSnippets: true,
+         enableLiveAutocompletion: true
+     });
+
+     const form = document.querySelector("body")
+     const languageRadioBtns = document.getElementsByName("language")
+
+     form.addEventListener("change", (e) => {
+       if (e.target.type === "radio") {
+         const aboutMe = {
+           language: ""
+         }
+
+         languageRadioBtns.forEach((btn) => {
+           if (btn.checked) {
+             aboutMe["language"] = btn.value
+           }
+         })
+
+         editor.setTheme("ace/theme/tomorrow_night");
+         editor.session.setMode("ace/mode/"+aboutMe.language);
+         editor.setOptions({
+             enableBasicAutocompletion: true,
+             enableSnippets: true,
+             enableLiveAutocompletion: true
+         });
+         console.log(aboutMe.language)
+       }
+     })
+   const exBtn = document.getElementById("executebtn");
+   const reBtn = document.getElementById("respawnbtn");
+   const r6Btn = document.getElementById("r6btn");
+   const nopos = document.getElementById("NoPositionRadio");
+   const repos = document.getElementById("RePositionRadio");</script>
+   <script src="dots.js"></script>
+   
+</body>
+
+</html>
